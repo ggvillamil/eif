@@ -1,0 +1,46 @@
+{
+    "__default__":
+    {
+        "m_mem_free": "4g",
+        "h_rt": "4:00:00",
+        "pe": "smp 4",
+        "os": "centos7",
+        "name"      : "JOBNAME.{rule}.{wildcards}",
+        "output"    : "logs/cluster/{rule}.{wildcards}.out",
+        "error"     : "logs/cluster/{rule}.{wildcards}.err"
+
+    },
+
+    "collapse_reads":
+    {
+        "m_mem_free": "8G",
+        "pe": "smp 4"
+    },
+    "trim_reads":
+    {
+        "m_mem_free": "8G",
+        "pe": "smp 4"
+    },
+    "run_riboseqc":
+    {
+        "m_mem_free": "10G",
+        "pe": "smp 4"
+    },
+    "collapse_reads":
+    {
+        "m_mem_free": "8G",
+        "pe": "smp 4"
+    },
+    "riboseqc":
+    {
+        "m_mem_free": "16G",
+        "h_rt": "72:00:00",
+        "pe": "smp 16"
+    },
+    "orfquant":
+    {
+        "m_mem_free": "16G",
+        "h_rt": "40:00:00",
+        "pe": "smp 16"
+    }
+}
