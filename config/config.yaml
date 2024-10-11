@@ -12,25 +12,27 @@ qualcutoff: "20"
 contaminants: "resources/spiked_contaminants.fa"
 genome: "resources/combined.human_yeast.genome.fa"
 gtf: "resources/combined.human_yeast.annotation.gtf"
-
 platform: "Illumina"
 
 
 # Parameters for spike-in processing
-yeast_chromosomes: "resources/yeast_chromosomes.bed"
 human_chromosomes: "resources/human_chromosomes.bed"
-yeast_contaminants: "resources/yeast_contaminants.bed"
 human_contaminants: "resources/human_contaminants.bed"
-# yeast_transcripts: "resources/yeast_transcripts.bed"
-# human_transcripts: "resources/human_transcripts.bed"
+yeast_chromosomes: "resources/yeast_chromosomes.bed"
+yeast_contaminants: "resources/yeast_contaminants.bed"
+
 
 # Parameters for RiboseQC, ORFquant, and RiboStan
+# Human
 human_genome: "resources/GRCh38.primary_assembly.genome.fa"
 human_transcriptome: "resources/gencode.v37.pc_transcripts.CCDS.fa"
 human_gtf: "resources/gencode.v37.primary_assembly.annotation.CCDS.gtf"
+
+# Yeast
 yeast_genome: "resources/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa"
 yeast_transcriptome: "resources/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa"
 yeast_gtf: "resources/Saccharomyces_cerevisiae.R64-1-1.109.gtf"
+
 
 # Parameters for Salmon (for total RNA quantification)
 transcripts: "resources/combined.human_yeast.transcripts.fa"

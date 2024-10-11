@@ -16,15 +16,15 @@ configfile: "config/config.yaml"
 # Set up workflow input ---------------------------------------------------
 
 
-# Read in sample sheet (samples.csv)
-samplesdf = pd.read_csv("config/samples.csv").set_index("sample_name",drop=False)
-totalRNA_samplesdf = pd.read_csv("config/samples_totalRNA.csv").set_index("sample_name",drop=False)
+# Read in sample sheets
+ribo_samplesdf = pd.read_csv("config/ribo_samples.csv").set_index("sample_name",drop=False)
+total_samplesdf = pd.read_csv("config/total_samples.csv").set_index("sample_name",drop=False)
 
 # Test for sample name uniqueness
 
 # Define samples
-samples = list(samplesdf["sample_name"])
-totalRNA_samples = list(totalRNA_samplesdf["sample_name"])
+ribo_samples = list(ribo_samplesdf["sample_name"])
+total_samples = list(total_samplesdf["sample_name"])
 
 # Base name of human gtf annotation for RiboseQC
 human_gtf_base = config["human_gtf"].replace(".gtf","").replace("resources/","")
@@ -39,16 +39,7 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        # expand("results/riboseqc/reports/{sample}/riboseqcreport.html", sample = samples),
-        # expand("results/star/transcriptome/data/{sample}/{sample}.bam", sample = samples),
-        # expand("results/orfquant/{sample}/{sample}_final_ORFquant_results", sample = samples),
-        # expand("results/split_bam/transcriptome/human/{sample}.bam", sample = samples),
-        # expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = samples),
-        # expand("results/ribostan/{sample}/{sample}.ribostan.yeast_morf_quant.tsv", sample = samples),
-        # expand("results/ribostan/{sample}/{sample}.ribostan.human_uorf_quant.tsv", sample = samples),
-        # expand("results/salmon/data/{totalRNA_sample}/quant.sf", totalRNA_sample = totalRNA_samples),
-        # expand("results/fastqc/raw/{sample}/.done", sample = totalRNA_samples),
-        expand("results/ribostan/{sample}/{sample}.ribostan.human_psites.rds", sample = samples)
+        expand("results/orfquant/{sample}/{sample}_final_ORFquant_results", sample = ribo_samples),
 
 
 # I. Pre-process reads (trim and collapse) --------------------------------
