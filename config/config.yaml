@@ -25,7 +25,7 @@ yeast_contaminants: "resources/contaminants.yeast.bed"
 # Parameters for RiboseQC, ORFquant, and RiboStan
 # Human
 human_genome: "resources/GRCh38.primary_assembly.genome.fa"
-human_transcriptome: ""
+human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.fa"
 human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.gtf"
 
 # Yeast
@@ -35,4 +35,4 @@ yeast_gtf: "resources/Saccharomyces_cerevisiae.R64-1-1.109.gtf"
 
 
 # Parameters for Salmon (for total RNA quantification)
-transcripts: ""
+transcriptome: "resources/transcriptome.combined_human_yeast.fa"

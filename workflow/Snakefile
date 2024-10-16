@@ -438,7 +438,7 @@ rule orfquant:
 
 rule star_transcript_index:
     input:
-        config["transcripts"]
+        config["transcriptome"]
     output:
         outdir=directory("results/star_index/transcriptome"),
         forbedfile="results/star_index/transcriptome/chrNameLength.txt"
@@ -678,7 +678,7 @@ rule ribostan_human_uorfs:
 
 rule salmon_transcript_index:
     input:
-        config["transcripts"]
+        config["transcriptome"]
     output:
         directory("results/salmon_index/transcriptome")
     threads: 8
