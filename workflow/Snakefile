@@ -36,7 +36,6 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 # One rule to rule them all -----------------------------------------------
 
 
-
 rule all:
     input:
         expand("results/orfquant/{sample}/{sample}_final_ORFquant_results", sample = ribo_samples),
@@ -502,8 +501,8 @@ rule split_bed_transcriptome:
         yeasttrx=config["yeast_transcriptome"],
         humantrx=config["human_transcriptome"]
     output:
-        yeastbed="resources/yeast_transcripts.bed",
-        humanbed="resources/human_transcripts.bed"
+        yeastbed="resources/transcripts.yeast.bed",
+        humanbed="resources/transcripts.human.bed"
     threads: 1
     shell: r"""
         yeastcount=$(grep ">" {input.yeasttrx} | wc -l)
@@ -517,8 +516,8 @@ rule split_bed_transcriptome:
 rule split_bam_transcriptome:
     input:
         bam="results/star/transcriptome/data/{sample}/{sample}.bam",
-        yeasttrx="resources/yeast_transcripts.bed",
-        humantrx="resources/human_transcripts.bed"
+        yeasttrx="resources/transcripts.yeast.bed",
+        humantrx="resources/transcripts.human.bed"
     output:
         yeastbam="results/split_bam/transcriptome/yeast/{sample}.bam",
         humanbam="results/split_bam/transcriptome/human/{sample}.bam"

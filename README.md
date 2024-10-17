@@ -1,5 +1,5 @@
 # eIF
-Analysis pipeline for the analysis of data from ribosome profiling and total RNA sequencing of degron cells targeting eukaryotic translation initiation factors (eIFs). It is implemented on Snakemake and is executed in a [Docker](https://www.docker.com/resources/what-container/) container for distribution and reproducibility.
+Analysis pipeline for the processing and analysis of ribosome profiling and total RNA sequencing data from degron cells targeting eukaryotic translation initiation factors (eIFs). It is implemented on Snakemake and is executed in a [Docker](https://www.docker.com/resources/what-container/) container for distribution and reproducibility.
 
 ## Features
 The workflow takes in ribosome profiling reads in FASTQ format as input and automates read processing, mapping, and quality-checking. Mapped reads are analyzed with RiboseQC, ORFquant, and Ribostan to calculate P-site offsets, predict open reading frames (ORFs) on transcripts, including upstream ORFs (uORFs), quantify ribosome occupancy, and with total RNA-seq data, calculate differential translation efficiency.
