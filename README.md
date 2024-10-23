@@ -17,6 +17,18 @@ This project is structured as a self-contained repository. Start by cloning the 
 	git clone git@github.com:ggvillamil/eif.git
 
 ### Download raw data
+Download raw ribosome profiling and RNA sequencing fastq files:
+
+	cd eif
+	wget http://bimsbstatic.mdc-berlin.de/ohler/gabriel/data.tar.gz
+	tar -zxvf data.tar.gz
+
+### Download resource files
+Download genome sequence, transcriptome sequence, transcript annotation, and other required resource files:
+
+	cd eif
+	wget http://bimsbstatic.mdc-berlin.de/ohler/gabriel/resources.tar.gz
+	tar -zxvf resources.tar.gz
 
 ## Use
 ### Run the Workflow
