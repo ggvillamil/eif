@@ -38,7 +38,7 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/orfquant/{sample}/{sample}_final_ORFquant_results", sample = ribo_samples),
+        expand("results/orfquant/{sample}/{sample}_ORFquant_report.html", sample = ribo_samples),
 
 
 # I. Pre-process reads (trim and collapse) --------------------------------
@@ -394,41 +394,53 @@ rule riboseqc:
 rule orfquant:
     input:
         anno="results/riboseqc/anno/"+human_gtf_base+".filtered.matchchrs.gtf_Rannot",
-        for_ORFquantfile="results/riboseqc/data/{sample}/_for_ORFquant"
+        for_ORFquant_file="results/riboseqc/data/{sample}/_for_ORFquant"
     output:
         "results/orfquant/{sample}/{sample}_final_ORFquant_results"
     threads: 10
-    resources:
-        mem_mb=100000
+    # resources:
+    #     mem_mb=100000
     params:
         prefix="results/orfquant/{sample}/{sample}"
     shell: r"""
         R -e 'library(ORFquant);
-        run_ORFquant(for_ORFquant_file = "{input.for_ORFquantfile}", annotation_file = "{input.anno}", n_cores = {threads}, prefix = "{params.prefix}")'
+        run_ORFquant(for_ORFquant_file = "{input.for_ORFquant_file}", annotation_file = "{input.anno}", n_cores = {threads}, prefix = "{params.prefix}")'
         """
 
 
 # rule orfquant_plots:
 #     input:
 #         anno="results/riboseqc/anno/"+human_gtf_base+".filtered.matchchrs.gtf_Rannot",
-#         for_ORFquantfile="results/riboseqc/data/{sample}/_for_ORFquant"
+#         for_ORFquant_file="results/riboseqc/data/{sample}/_for_ORFquant",
+#         ORFquant_output_file="results/orfquant/{sample}/{sample}_final_ORFquant_results"
 #     output:
-#         "results/orfquant/{sample}/_final_ORFquant_results"
+#         "results/orfquant/{sample}/{sample}_final_ORFquant_results_plots/{sample}_ORFquant_plots_RData"
 #     shell: r"""
 #         R -e 'library(ORFquant);
-#         plot_ORFquant_results(for_ORFquant_file = "{input.for_ORFquantfile}", ORFquant_output_file = "{output}", annotation_file = "{input.anno}")'
+#         plot_ORFquant_results(for_ORFquant_file = "{input.for_ORFquant_file}", ORFquant_output_file = "{input.ORFquant_output_file}", annotation_file = "{input.anno}")'
 #         """
 
+rule orfquant_plots:
+    input:
+        anno="results/riboseqc/anno/"+human_gtf_base+".filtered.matchchrs.gtf_Rannot",
+        for_ORFquant_file="results/riboseqc/data/{sample}/_for_ORFquant"
+    output:
+        "results/orfquant/{sample}/{sample}_final_ORFquant_results_plots/{sample}_ORFquant_plots_RData"
+    shell: r"""
+        R -e 'library(ORFquant);
+        plot_ORFquant_results(for_ORFquant_file = "{input.for_ORFquant_file}", ORFquant_output_file = "results/orfquant/{wildcards.sample}/{wildcards.sample}_final_ORFquant_results", annotation_file = "{input.anno}")'
+        """
 
-# rule orfquant_report:
-#     input:
-#         "results/orfquant/{sample}/_final_ORFquant_results/"
-#     output:
-#         "results/orfquant/{sample}/_ORFquant_report.html"
-#     shell: r"""
-#         R -e 'library(ORFquant);
-#         create_ORFquant_html_report(input_files = "{input}", input_sample_names = "{wildcards.sample}", output_file = "{output}")'
-#         """
+
+rule orfquant_report:
+    input:
+        "results/orfquant/{sample}/{sample}_final_ORFquant_results_plots/{sample}_ORFquant_plots_RData"
+    output:
+        "results/orfquant/{sample}/{sample}_ORFquant_report.html"
+    shell: r"""
+        R -e 'library(ORFquant);
+        create_ORFquant_html_report(input_files = "{input}", input_sample_names = "{wildcards.sample}", output_file = "{output}")'
+        """
 
 
 

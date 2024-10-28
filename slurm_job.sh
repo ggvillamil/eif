@@ -1,12 +1,12 @@
 #! /bin/bash
 
-#SBATCH --job-name=ribopipe2
+#SBATCH --job-name=hct116_anno_orfquant_reports
 #SBATCH --mail-user=gabriel.villamil@mdc-berlin.de
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --output=logs/snakemake/snakemake.stdout.log
+#SBATCH --output=logs/snakemake/%j.snakemake.stdout.log
 #SBATCH --export=ALL
 #SBATCH --chdir=.
-#SBATCH --ntasks=32
+#SBATCH --ntasks=28
 #SBATCH --time=168:00:00
 #SBATCH --mem-per-cpu=10000MB
 
@@ -18,4 +18,4 @@ source ~/.bashrc
 conda activate z_snakemake
 
 # Run Snakemake
-snakemake -j 32 -k -p --restart-times 1 --max-jobs-per-second 5 --rerun-incomplete --use-singularity
+snakemake -j 28 -k -p --restart-times 1 --max-jobs-per-second 5 --rerun-incomplete --use-singularity
