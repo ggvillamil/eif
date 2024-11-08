@@ -38,7 +38,10 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/orfquant/{sample}/{sample}_ORFquant_report.html", sample = ribo_samples),
+        expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
+        expand("results/ribostan/{sample}/{sample}.ribostan.yeast_morf_quant.tsv", sample = ribo_samples),
+        expand("results/ribostan/{sample}/{sample}.ribostan.human_uorf_quant.tsv", sample = ribo_samples),
+        expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
 
 
 # I. Pre-process reads (trim and collapse) --------------------------------
@@ -540,7 +543,6 @@ rule ribostan_human_morfs:
     output:
         quant = "results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.rds",
         tsv = "results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv"
-    threads: 2
     shell: r"""
         R -e 'library(Ribostan);
         anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
@@ -575,7 +577,6 @@ rule get_offsets:
         gtf = config["human_gtf"]
     output:
         "results/ribostan/{sample}/{sample}.ribostan.human_offsets.rds"
-    threads: 2
     shell: r"""
         R -e 'library(Ribostan);
         anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
@@ -594,7 +595,6 @@ rule ribostan_yeast_morfs:
     output:
         quant = "results/ribostan/{sample}/{sample}.ribostan.yeast_morf_quant.rds",
         tsv = "results/ribostan/{sample}/{sample}.ribostan.yeast_morf_quant.tsv"
-    threads: 2
     shell: r"""
         R -e 'library(Ribostan);
         anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
@@ -636,7 +636,6 @@ rule ribostan_human_uorfs:
         uorf_anno = "results/ribostan/{sample}/{sample}.ribostan.human_uorf_anno.rds",
         quant = "results/ribostan/{sample}/{sample}.ribostan.human_uorf_quant.rds",
         tsv = "results/ribostan/{sample}/{sample}.ribostan.human_uorf_quant.tsv"
-    threads: 2
     shell: r"""
         R -e 'library(Ribostan);
         anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = TRUE);
@@ -688,11 +687,11 @@ rule salmon_transcript_index:
 
 rule salmon_pe:
     input:
-        fastq1="data/rnaseq/{totalRNA_sample}_R1.fastq.gz",
-        fastq2="data/rnaseq/{totalRNA_sample}_R2.fastq.gz",
+        fastq1="data/rnaseq/{total_sample}_R1.fastq.gz",
+        fastq2="data/rnaseq/{total_sample}_R2.fastq.gz",
         salmonindex="results/salmon_index/transcriptome"
     output:
-        "results/salmon/data/{totalRNA_sample}/quant.sf"
+        "results/salmon/data/{total_sample}/quant.sf"
     threads: 4
     params:
         lib="A"
@@ -704,7 +703,7 @@ rule salmon_pe:
         -l {params.lib} \
         -1 <(zcat {input.fastq1}) \
         -2 <(zcat {input.fastq2}) \
-        --output results/salmon/data/{wildcards.totalRNA_sample} \
+        --output results/salmon/data/{wildcards.total_sample} \
         --validateMappings
         """
 
