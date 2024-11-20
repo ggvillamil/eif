@@ -12,16 +12,17 @@ library(tidyverse)
 # Select samples to include in analysis -----------------------------------
 
 
-my_assay <- "total" # You should replace "total" with "rnaseq" in everything
-my_condition <- "conditionTime"
+my_assay <- "ribo" # You should replace "total" with "rnaseq" in everything
+my_condition <- "conditionAuxin" # Choose one: "conditionAuxin" or "conditionTime"
 my_organism <- "human"
 my_orf <- "morf"
-my_subunit <- "eIF4G3"
-my_auxin <- "plusAux"
+my_subunit <- "eIF4G2"
+# my_auxin <- "plusAux" # Comment out if "conditionAuxin" is used
 my_harringtonine <- "minusHarr"
-# my_time <- "8h"
+my_time <- "4h" # Comment out if "conditionTime" is used
 
-my_suffix <- paste(my_condition, my_organism, my_orf, my_subunit, my_auxin, my_harringtonine, sep = "_")
+my_suffix <- paste(my_condition, my_organism, my_orf, my_subunit, my_harringtonine, my_time, sep = "_") # Comment out if "conditionTime" is used
+# my_suffix <- paste(my_condition, my_organism, my_orf, my_subunit, my_auxin, my_harringtonine, sep = "_") # Comment out if "conditionAuxin" is used
 
 
 # Functions ---------------------------------------------------------------
@@ -51,8 +52,8 @@ txi <- readRDS(paste0(paste("results/post/txi", my_assay, my_suffix, sep = "_"),
 
 dds <- DESeqDataSetFromTximport(txi = txi,
                               colData = sampleTable,
-                              # design = ~ auxin)
-                              design = ~ time)
+                              design = ~ auxin) # Comment out if "conditionTime" is used
+                              # design = ~ time) # Comment out if "conditionAuxin" is used
 
 
 # DESeq2 automatic size factor estimation ---------------------------------
@@ -66,8 +67,8 @@ res_auto <- results(dds_auto)
 saveRDS(res_auto, paste0("results/post/deseq_res_diff", my_assay, "_autonorm_", my_suffix, ".rds"))
 
 # Bayesian shrinkage with apeglm
-# resLFC_auto <- lfcShrink(dds_auto, coef = "auxin_plusAux_vs_minusAux", type = "apeglm")
-resLFC_auto <- lfcShrink(dds_auto, coef = "time_8h_vs_4h", type = "apeglm")
+resLFC_auto <- lfcShrink(dds_auto, coef = "auxin_plusAux_vs_minusAux", type = "apeglm") # Comment out if "conditionTime" is used
+# resLFC_auto <- lfcShrink(dds_auto, coef = "time_8h_vs_4h", type = "apeglm") # Comment out if "conditionAuxin" is used
 
 # MA plots
 res_auto %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_diff", my_assay, "_autonorm_", my_suffix, ".pdf"))
@@ -96,8 +97,8 @@ res_manual <- results(dds_manual)
 saveRDS(res_manual, paste0("results/post/deseq_res_diff", my_assay, "_yeastnorm_", my_suffix, ".rds"))
 
 # Bayesian shrinkage with apeglm
-# resLFC_manual <- lfcShrink(dds_manual, coef = "auxin_plusAux_vs_minusAux", type = "apeglm")
-resLFC_manual <- lfcShrink(dds_manual, coef = "time_8h_vs_4h", type = "apeglm")
+resLFC_manual <- lfcShrink(dds_manual, coef = "auxin_plusAux_vs_minusAux", type = "apeglm") # Comment out if "conditionTime" is used
+# resLFC_manual <- lfcShrink(dds_manual, coef = "time_8h_vs_4h", type = "apeglm") # Comment out if "conditionAuxin" is used
 
 # MA plots
 res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_diff", my_assay, "_yeastnorm_", my_suffix, ".pdf"))
@@ -127,8 +128,8 @@ res_manual <- results(dds_manual)
 saveRDS(res_manual, paste0("results/post/deseq_res_diff", my_assay, "_yeastnorm_", my_suffix, ".rds"))
 
 # Bayesian shrinkage with apeglm
-# resLFC_manual <- lfcShrink(dds_manual, coef = "auxin_plusAux_vs_minusAux", type = "apeglm")
-resLFC_manual <- lfcShrink(dds_manual, coef = "time_8h_vs_4h", type = "apeglm")
+resLFC_manual <- lfcShrink(dds_manual, coef = "auxin_plusAux_vs_minusAux", type = "apeglm") # Comment out if "conditionTime" is used
+# resLFC_manual <- lfcShrink(dds_manual, coef = "time_8h_vs_4h", type = "apeglm") # Comment out if "conditionAuxin" is used
 
 # MA plots
 res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_diff", my_assay, "_yeastnorm_", my_suffix, ".pdf"))
