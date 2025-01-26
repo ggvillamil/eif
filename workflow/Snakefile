@@ -38,10 +38,9 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
-        expand("results/ribostan/{sample}/{sample}.ribostan.yeast_morf_quant.tsv", sample = ribo_samples),
-        expand("results/ribostan/{sample}/{sample}.ribostan.human_uorf_quant.tsv", sample = ribo_samples),
-        expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
+        # expand("results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam", total_sample = total_samples)
+        expand("results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
+        expand("results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
 
 
 # I. Pre-process reads (trim and collapse) --------------------------------
@@ -457,7 +456,7 @@ rule star_transcript_index:
         """
 
 
-rule star_transript:
+rule star_transcript:
     input:
         fastq="results/filter_reads/{sample}/{sample}.fastq.gz",
         transcriptindex="results/star_index/transcriptome"
@@ -529,6 +528,39 @@ rule split_bam_transcriptome:
     shell: r"""
         samtools view -b -L {input.yeasttrx} {input.bam} > {output.yeastbam}
         samtools view -b -L {input.humantrx} {input.bam} > {output.humanbam}
+        """
+
+
+rule star_transcript_rnaseq:
+    input:
+        fastq1="data/rnaseq/{total_sample}_R1.fastq.gz",
+        fastq2="data/rnaseq/{total_sample}_R2.fastq.gz",
+        transcriptindex="results/star_index/transcriptome"
+    output:
+        "results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam"
+    threads: 8
+    params:
+    shell: r"""
+        tmpDir=$(mktemp -d)
+        mkdir -p $tmpDir/star
+
+        STAR \
+        --runThreadN {threads} \
+        --genomeDir {input.transcriptindex} \
+        --outSAMtype BAM Unsorted \
+        --outSAMmode NoQS \
+        --outSAMattributes NH NM \
+        --seedSearchLmax 10 \
+        --outFilterMultimapNmax 255 \
+        --outFilterMismatchNmax 1 \
+        --outFilterIntronMotifs RemoveNoncanonical \
+        --outFileNamePrefix results/star/transcriptome_rnaseq/data/{wildcards.total_sample}/{wildcards.total_sample}.transcript_ \
+        --readFilesIn {input.fastq1} {input.fastq2} \
+        --readFilesCommand zcat
+
+        samtools sort results/star/transcriptome_rnaseq/data/{wildcards.total_sample}/{wildcards.total_sample}.transcript_Aligned.out.bam -o {output}
+        rm results/star/transcriptome_rnaseq/data/{wildcards.total_sample}/{wildcards.total_sample}.transcript_Aligned.out.bam
+        samtools index {output}
         """
 
 
@@ -668,6 +700,76 @@ rule ribostan_human_uorfs:
             dplyr::left_join(ritpmdf) %>%
             dplyr::left_join(counts);
         saveRDS(uorf_ritpms, file = "{output.quant}");
+        output %>% readr::write_tsv("{output.tsv}")'
+        """
+
+
+rule ribostan_human_morfs_primary_alignments:
+    input:
+        bam = "results/primary_bam/transcriptome/human/primary_{sample}.bam",
+        fasta = config["human_genome"],
+        gtf = config["human_gtf"]
+    output:
+        quant = "results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.rds",
+        tsv = "results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.tsv"
+    shell: r"""
+        R -e 'library(Ribostan);
+        anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
+        rpfs <- get_readgr(ribobam = "{input.bam}", anno);
+        offsets_df <- get_offsets(rpfs, anno);
+        psites <- get_psite_gr(rpfs, offsets_df, anno);
+        ritpms <- get_ritpms(psites, anno);
+        n_reads <- dplyr::n_distinct(names(rpfs));
+        lengths <- GenomicRanges::width(anno$trspacecds[names(ritpms)]);
+        nucfracs <- (ritpms * lengths);
+        nucfracs <- nucfracs / sum(nucfracs);
+        counts <- n_reads * nucfracs;
+        counts <- tibble::enframe(counts, "Name", "NumReads");
+        ritpmdf <- tibble::enframe(ritpms, "Name", "ritpm");
+        cdslens <- anno$trspacecds %>%
+            GenomicRanges::width() %>%
+            setNames(names(anno$trspacecds)) %>%
+            tibble::enframe("Name", "Length") %>%
+            dplyr::mutate(EffectiveLength = .data$Length);
+        output <- cdslens %>%
+            dplyr::left_join(ritpmdf) %>%
+            dplyr::left_join(counts);
+        saveRDS(ritpms, file = "{output.quant}");
+        output %>% readr::write_tsv("{output.tsv}")'
+        """
+
+
+rule ribostan_human_morfs_unique_alignments:
+    input:
+        bam = "results/unique_bam/transcriptome/human/unique_{sample}.bam",
+        fasta = config["human_genome"],
+        gtf = config["human_gtf"]
+    output:
+        quant = "results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.rds",
+        tsv = "results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.tsv"
+    shell: r"""
+        R -e 'library(Ribostan);
+        anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
+        rpfs <- get_readgr(ribobam = "{input.bam}", anno);
+        offsets_df <- get_offsets(rpfs, anno);
+        psites <- get_psite_gr(rpfs, offsets_df, anno);
+        ritpms <- get_ritpms(psites, anno);
+        n_reads <- dplyr::n_distinct(names(rpfs));
+        lengths <- GenomicRanges::width(anno$trspacecds[names(ritpms)]);
+        nucfracs <- (ritpms * lengths);
+        nucfracs <- nucfracs / sum(nucfracs);
+        counts <- n_reads * nucfracs;
+        counts <- tibble::enframe(counts, "Name", "NumReads");
+        ritpmdf <- tibble::enframe(ritpms, "Name", "ritpm");
+        cdslens <- anno$trspacecds %>%
+            GenomicRanges::width() %>%
+            setNames(names(anno$trspacecds)) %>%
+            tibble::enframe("Name", "Length") %>%
+            dplyr::mutate(EffectiveLength = .data$Length);
+        output <- cdslens %>%
+            dplyr::left_join(ritpmdf) %>%
+            dplyr::left_join(counts);
+        saveRDS(ritpms, file = "{output.quant}");
         output %>% readr::write_tsv("{output.tsv}")'
         """
 
