@@ -38,7 +38,7 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        # expand("results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam", total_sample = total_samples)
+        expand("results/split_bam/transcriptome_rnaseq/yeast/{total_sample}.bam", total_sample = total_samples),
         expand("results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
         expand("results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
 
@@ -524,7 +524,6 @@ rule split_bam_transcriptome:
     output:
         yeastbam="results/split_bam/transcriptome/yeast/{sample}.bam",
         humanbam="results/split_bam/transcriptome/human/{sample}.bam"
-    threads: 8
     shell: r"""
         samtools view -b -L {input.yeasttrx} {input.bam} > {output.yeastbam}
         samtools view -b -L {input.humantrx} {input.bam} > {output.humanbam}
@@ -562,6 +561,21 @@ rule star_transcript_rnaseq:
         rm results/star/transcriptome_rnaseq/data/{wildcards.total_sample}/{wildcards.total_sample}.transcript_Aligned.out.bam
         samtools index {output}
         """
+
+
+rule split_bam_transcriptome_rnaseq:
+    input:
+        bam="results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam",
+        yeasttrx="resources/transcripts.yeast.bed",
+        humantrx="resources/transcripts.human.bed"
+    output:
+        yeastbam="results/split_bam/transcriptome_rnaseq/yeast/{total_sample}.bam",
+        humanbam="results/split_bam/transcriptome_rnaseq/human/{total_sample}.bam"
+    shell: r"""
+        samtools view -b -L {input.yeasttrx} {input.bam} > {output.yeastbam}
+        samtools view -b -L {input.humantrx} {input.bam} > {output.humanbam}
+        """
+
 
 
 # VIII. Run RiboStan ------------------------------------------------------
@@ -809,5 +823,26 @@ rule salmon_pe:
         --validateMappings
         """
 
+rule salmon_pe_unique_alignments:
+    input:
+        fastq1="data/rnaseq/{total_sample}_R1.fastq.gz",
+        fastq2="data/rnaseq/{total_sample}_R2.fastq.gz",
+        salmonindex="results/salmon_index/transcriptome"
+    output:
+        "results/salmon/data/{total_sample}/quant.sf"
+    threads: 4
+    params:
+        lib="A"
+    shell: r"""
+        salmon quant \
+        -p {threads} \
+        --seqBias \
+        -i {input.salmonindex} \
+        -l {params.lib} \
+        -1 <(zcat {input.fastq1}) \
+        -2 <(zcat {input.fastq2}) \
+        --output results/salmon/data/{wildcards.total_sample} \
+        --validateMappings
+        """
 
 

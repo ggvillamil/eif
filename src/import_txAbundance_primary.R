@@ -16,7 +16,7 @@ my_assay <- "ribo" # You should replace "total" with "rnaseq" in everything
 my_condition <- "conditionAuxin"
 my_organism <- "human"
 my_orf <- "morf"
-my_subunit <- "eIF3d"
+my_subunit <- "eIF4E"
 # my_auxin <- "plusAux"
 my_harringtonine <- "minusHarr"
 my_time <- "4h"
@@ -99,8 +99,8 @@ quantfiles <- c(ribo_files, rna_files)
 txi <- tximport(quantfiles, type = "salmon", txOut = TRUE, importer = read_quantfile)
 
 
-saveRDS(sampleTable, paste0(paste("results/post/sampleTable_primary", my_suffix, sep = "_"), ".rds"))
-saveRDS(txi, paste0(paste("results/post/txi_primary", my_suffix, sep = "_"), ".rds"))
+saveRDS(sampleTable, paste0(paste("results/post/sampleTable", my_suffix, sep = "_"), "_primary.rds"))
+saveRDS(txi, paste0(paste("results/post/txi", my_suffix, sep = "_"), "_primary.rds"))
 
 
 # PCA -----

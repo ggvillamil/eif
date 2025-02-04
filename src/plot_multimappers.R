@@ -2,6 +2,7 @@
 library(stringr)  # For string manipulation
 library(tibble)
 library(tidyr)
+library(dplyr)
 library(magrittr)
 library(ggplot2)
 
@@ -73,4 +74,4 @@ percent_multi_df <- enframe(percent_multi) %>%
   mutate(sample = paste(subunit, auxin, harringtonine, time, sep = "_"))
 
 
-percent_multi_df %>% plotBoxplot(title = "Percent multi-mapping ribo-seq reads", filename = "boxplot_percent_multimappers.pdf")
+percent_multi_df %>% plotBoxplot(title = "Percent multi-mapping ribo-seq reads", filename = "boxplot_percent_multimappers_ribo.pdf")

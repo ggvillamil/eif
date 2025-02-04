@@ -41,8 +41,8 @@ plotMAplot <- function(INPUT, ylim, filename){
 # Load sample and transcript abundance tables -----------------------------
 
 
-sampleTable <- readRDS(paste0(paste("results/post/sampleTable_primary", my_suffix, sep = "_"), ".rds"))
-txi <- readRDS(paste0(paste("results/post/txi_primary", my_suffix, sep = "_"), ".rds"))
+sampleTable <- readRDS(paste0(paste("results/post/sampleTable", my_suffix, sep = "_"), "_primary.rds"))
+txi <- readRDS(paste0(paste("results/post/txi", my_suffix, sep = "_"), "_primary.rds"))
 
 
 # Build DESeq data set ----------------------------------------------------
@@ -68,15 +68,15 @@ res_auto <- results(dds_auto, name = "auxinplusAux.assayribo")
 # res_auto <- results(dds_auto, name = "time4h.assayribo")
 
 # Save results
-saveRDS(res_auto, paste0("results/post/deseq_res_deltaTE_autonorm_primary_", my_suffix, ".rds"))
+saveRDS(res_auto, paste0("results/post/deseq_res_deltaTE_autonorm_", my_suffix, "_primary.rds"))
 
 # Bayesian shrinkage with apeglm
 resLFC_auto <- lfcShrink(dds_auto, coef = "auxinplusAux.assayribo", type = "apeglm")
 # resLFC_auto <- lfcShrink(dds_auto, coef = "time4h.assayribo", type = "apeglm")
 
 # MA plots
-res_auto %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_deltaTE_autonorm_primary_", my_suffix, ".pdf"))
-resLFC_auto %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_deltaTE_autonorm_primary_", my_suffix, ".pdf"))
+res_auto %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_deltaTE_autonorm_", my_suffix, "_primary.pdf"))
+resLFC_auto %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_deltaTE_autonorm_", my_suffix, "_primary.pdf"))
 
 
 # Size factors manually set based on yeast transcripts --------------------
@@ -101,13 +101,13 @@ res_manual <- results(dds_manual, name = "auxinplusAux.assayribo")
 # res_manual <- results(dds_manual, name = "time4h.assayribo")
 
 # Save results
-saveRDS(res_manual, paste0("results/post/deseq_res_deltaTE_yeastnorm_primary_", my_suffix, ".rds"))
+saveRDS(res_manual, paste0("results/post/deseq_res_deltaTE_yeastnorm_", my_suffix, "_primary.rds"))
 
 # Bayesian shrinkage with apeglm
 res_manual <- results(dds_manual, name = "auxinplusAux.assayribo", type = "apeglm")
 # resLFC_manual <- lfcShrink(dds_manual, coef = "time4h.assayribo", type = "apeglm")
 
 # MA plots
-res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_deltaTE_yeastnorm_primary_", my_suffix, ".pdf"))
-resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_deltaTE_yeastnorm_primary_", my_suffix, ".pdf"))
+res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_deltaTE_yeastnorm_", my_suffix, "_primary.pdf"))
+resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_deltaTE_yeastnorm_", my_suffix, "_primary.pdf"))
 
