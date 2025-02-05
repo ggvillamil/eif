@@ -38,10 +38,7 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/split_bam/transcriptome_rnaseq/yeast/{total_sample}.bam", total_sample = total_samples),
-        expand("results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
-        expand("results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
-
+        expand("results/split_bam/transcriptome_rnaseq/yeast/{total_sample}.bam", total_sample = total_samples)
 
 # I. Pre-process reads (trim and collapse) --------------------------------
 
@@ -551,8 +548,9 @@ rule star_transcript_rnaseq:
         --outSAMattributes NH NM \
         --seedSearchLmax 10 \
         --outFilterMultimapNmax 255 \
-        --outFilterMismatchNmax 1 \
+        --outFilterMismatchNmax 2 \
         --outFilterIntronMotifs RemoveNoncanonical \
+        --outSAMmultNmax 1 \
         --outFileNamePrefix results/star/transcriptome_rnaseq/data/{wildcards.total_sample}/{wildcards.total_sample}.transcript_ \
         --readFilesIn {input.fastq1} {input.fastq2} \
         --readFilesCommand zcat
