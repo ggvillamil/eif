@@ -12,15 +12,15 @@ library(tidyverse)
 # Select samples to include in analysis -----------------------------------
 
 
-my_condition <- "conditionTime"
+my_condition <- "conditionAuxin"
 my_organism <- "human"
 my_orf <- "morf"
 my_subunit <- "eIF3d"
-my_auxin <- "minusAux"
+# my_auxin <- "minusAux"
 my_harringtonine <- "minusHarr"
-# my_time <- "8h"
+my_time <- "4h"
 
-my_suffix <- paste(my_condition, my_organism, my_orf, my_subunit, my_auxin, my_harringtonine, sep = "_")
+my_suffix <- paste(my_condition, my_organism, my_orf, my_subunit, my_harringtonine, my_time, sep = "_")
 
 
 # Functions ---------------------------------------------------------------
@@ -51,8 +51,8 @@ txi <- readRDS(paste0(paste("results/post/txi", my_suffix, sep = "_"), ".rds"))
 # Based on deltaTE (Chothani, 2019. Current Protocols in Molecular Biology)
 dds <- DESeqDataSetFromTximport(txi = txi,
                               colData = sampleTable,
-                              # design = ~ auxin+assay+auxin:assay)
-                              design = ~ time+assay+time:assay)
+                              design = ~ auxin+assay+auxin:assay)
+                              # design = ~ time+assay+time:assay)
 
 
 # Change reference level to RNA-seq (totalrna)
@@ -64,15 +64,15 @@ dds$assay <- relevel(dds$assay, ref = "total")
 
 # Run DESeq2
 dds_auto <- DESeq(dds)
-# res_auto <- results(dds_auto, name = "auxinplusAux.assayribo")
-res_auto <- results(dds_auto, name = "time8h.assayribo")
+res_auto <- results(dds_auto, name = "auxinplusAux.assayribo")
+# res_auto <- results(dds_auto, name = "time8h.assayribo")
 
 # Save results
 saveRDS(res_auto, paste0("results/post/deseq_res_deltaTE_autonorm_", my_suffix, ".rds"))
 
 # Bayesian shrinkage with apeglm
-# resLFC_auto <- lfcShrink(dds_auto, coef = "auxinplusAux.assayribo", type = "apeglm")
-resLFC_auto <- lfcShrink(dds_auto, coef = "time8h.assayribo", type = "apeglm")
+resLFC_auto <- lfcShrink(dds_auto, coef = "auxinplusAux.assayribo", type = "apeglm")
+# resLFC_auto <- lfcShrink(dds_auto, coef = "time8h.assayribo", type = "apeglm")
 
 # MA plots
 res_auto %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_deltaTE_autonorm_", my_suffix, ".pdf"))
@@ -97,16 +97,16 @@ sizeFactors(dds_manual) <- c(my_sizeFactors_ribo, my_sizeFactors_rna)
 
 # Run DESeq2
 dds_manual <- DESeq(dds_manual)
-# res_manual <- results(dds_manual, name = "auxinplusAux.assayribo")
-res_manual <- results(dds_manual, name = "time8h.assayribo")
+res_manual <- results(dds_manual, name = "auxinplusAux.assayribo")
+# res_manual <- results(dds_manual, name = "time8h.assayribo")
 
 # Save results
 saveRDS(res_manual, paste0("results/post/deseq_res_deltaTE_yeastnorm_", my_suffix, ".rds"))
 
 # Bayesian shrinkage with apeglm
-resLFC_manual <- lfcShrink(dds_manual, coef = "time8h.assayribo", type = "apeglm")
+# resLFC_manual <- lfcShrink(dds_manual, coef = "time8h.assayribo", type = "apeglm")
 
 # MA plots
 res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_deltaTE_yeastnorm_", my_suffix, ".pdf"))
-resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_deltaTE_yeastnorm_", my_suffix, ".pdf"))
+# resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_deltaTE_yeastnorm_", my_suffix, ".pdf"))
 

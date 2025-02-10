@@ -38,7 +38,8 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/split_bam/transcriptome_rnaseq/yeast/{total_sample}.bam", total_sample = total_samples)
+        expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
+
 
 # I. Pre-process reads (trim and collapse) --------------------------------
 
@@ -473,8 +474,9 @@ rule star_transcript:
         --outSAMattributes NH NM \
         --seedSearchLmax 10 \
         --outFilterMultimapNmax 255 \
-        --outFilterMismatchNmax 1 \
+        --outFilterMismatchNmax 2 \
         --outFilterIntronMotifs RemoveNoncanonical \
+        --outSAMmultNmax 1 \
         --outFileNamePrefix results/star/transcriptome/data/{wildcards.sample}/{wildcards.sample}.transcript_ \
         --readFilesIn {input.fastq} \
         --readFilesCommand zcat
@@ -716,131 +718,25 @@ rule ribostan_human_uorfs:
         """
 
 
-rule ribostan_human_morfs_primary_alignments:
-    input:
-        bam = "results/primary_bam/transcriptome/human/primary_{sample}.bam",
-        fasta = config["human_genome"],
-        gtf = config["human_gtf"]
-    output:
-        quant = "results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.rds",
-        tsv = "results/primary_ribostan/{sample}/primary_{sample}.ribostan.human_morf_quant.tsv"
-    shell: r"""
-        R -e 'library(Ribostan);
-        anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
-        rpfs <- get_readgr(ribobam = "{input.bam}", anno);
-        offsets_df <- get_offsets(rpfs, anno);
-        psites <- get_psite_gr(rpfs, offsets_df, anno);
-        ritpms <- get_ritpms(psites, anno);
-        n_reads <- dplyr::n_distinct(names(rpfs));
-        lengths <- GenomicRanges::width(anno$trspacecds[names(ritpms)]);
-        nucfracs <- (ritpms * lengths);
-        nucfracs <- nucfracs / sum(nucfracs);
-        counts <- n_reads * nucfracs;
-        counts <- tibble::enframe(counts, "Name", "NumReads");
-        ritpmdf <- tibble::enframe(ritpms, "Name", "ritpm");
-        cdslens <- anno$trspacecds %>%
-            GenomicRanges::width() %>%
-            setNames(names(anno$trspacecds)) %>%
-            tibble::enframe("Name", "Length") %>%
-            dplyr::mutate(EffectiveLength = .data$Length);
-        output <- cdslens %>%
-            dplyr::left_join(ritpmdf) %>%
-            dplyr::left_join(counts);
-        saveRDS(ritpms, file = "{output.quant}");
-        output %>% readr::write_tsv("{output.tsv}")'
-        """
-
-
-rule ribostan_human_morfs_unique_alignments:
-    input:
-        bam = "results/unique_bam/transcriptome/human/unique_{sample}.bam",
-        fasta = config["human_genome"],
-        gtf = config["human_gtf"]
-    output:
-        quant = "results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.rds",
-        tsv = "results/unique_ribostan/{sample}/unique_{sample}.ribostan.human_morf_quant.tsv"
-    shell: r"""
-        R -e 'library(Ribostan);
-        anno <- load_annotation(gtf = "{input.gtf}", fafile = "{input.fasta}", add_uorfs = FALSE);
-        rpfs <- get_readgr(ribobam = "{input.bam}", anno);
-        offsets_df <- get_offsets(rpfs, anno);
-        psites <- get_psite_gr(rpfs, offsets_df, anno);
-        ritpms <- get_ritpms(psites, anno);
-        n_reads <- dplyr::n_distinct(names(rpfs));
-        lengths <- GenomicRanges::width(anno$trspacecds[names(ritpms)]);
-        nucfracs <- (ritpms * lengths);
-        nucfracs <- nucfracs / sum(nucfracs);
-        counts <- n_reads * nucfracs;
-        counts <- tibble::enframe(counts, "Name", "NumReads");
-        ritpmdf <- tibble::enframe(ritpms, "Name", "ritpm");
-        cdslens <- anno$trspacecds %>%
-            GenomicRanges::width() %>%
-            setNames(names(anno$trspacecds)) %>%
-            tibble::enframe("Name", "Length") %>%
-            dplyr::mutate(EffectiveLength = .data$Length);
-        output <- cdslens %>%
-            dplyr::left_join(ritpmdf) %>%
-            dplyr::left_join(counts);
-        saveRDS(ritpms, file = "{output.quant}");
-        output %>% readr::write_tsv("{output.tsv}")'
-        """
-
-
 # IX. Run Salmon ----------------------------------------------------------
 
 
-rule salmon_transcript_index:
-    input:
-        config["transcriptome"]
-    output:
-        directory("results/salmon_index/transcriptome")
-    threads: 8
-    shell:
-        "salmon index -p {threads} -k 21 -t {input} -i {output}"
-
-
-rule salmon_pe:
-    input:
-        fastq1="data/rnaseq/{total_sample}_R1.fastq.gz",
-        fastq2="data/rnaseq/{total_sample}_R2.fastq.gz",
-        salmonindex="results/salmon_index/transcriptome"
-    output:
-        "results/salmon/data/{total_sample}/quant.sf"
-    threads: 4
-    params:
-        lib="A"
-    shell: r"""
-        salmon quant \
-        -p {threads} \
-        --seqBias \
-        -i {input.salmonindex} \
-        -l {params.lib} \
-        -1 <(zcat {input.fastq1}) \
-        -2 <(zcat {input.fastq2}) \
-        --output results/salmon/data/{wildcards.total_sample} \
-        --validateMappings
-        """
-
-rule salmon_pe_unique_alignments:
-    input:
-        fastq1="data/rnaseq/{total_sample}_R1.fastq.gz",
-        fastq2="data/rnaseq/{total_sample}_R2.fastq.gz",
-        salmonindex="results/salmon_index/transcriptome"
-    output:
-        "results/salmon/data/{total_sample}/quant.sf"
-    threads: 4
-    params:
-        lib="A"
-    shell: r"""
-        salmon quant \
-        -p {threads} \
-        --seqBias \
-        -i {input.salmonindex} \
-        -l {params.lib} \
-        -1 <(zcat {input.fastq1}) \
-        -2 <(zcat {input.fastq2}) \
-        --output results/salmon/data/{wildcards.total_sample} \
-        --validateMappings
-        """
-
+# rule salmon_bam:
+#     input:
+#         bam="results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam",
+#         # fasta=config["transcriptome_initial"]
+#     output:
+#         "results/salmon/data/{total_sample}/quant.sf"
+#     threads: 4
+#     params:
+#         lib="A"
+#     shell: r"""
+#         salmon quant \
+#         -p {threads} \
+#         --seqBias \
+#         -t {input.fasta} \
+#         -l {params.lib} \
+#         -a {input.bam} \
+#         --output results/salmon/data/{wildcards.total_sample}
+#     """
 

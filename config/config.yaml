@@ -11,7 +11,9 @@ qualcutoff: "20"
 # Parameters for mapping
 contaminants: "resources/contaminants.combined_human_yeast.fa"
 genome: "resources/genome.combined_human_yeast.fa"
-gtf: "resources/annotation.combined_human_yeast.gtf"
+# gtf: "resources/annotation.combined_human_yeast.gtf"
+# gtf: "resources/annotation.combined_human_yeast.rnaseq_filtered_eif3d.gtf"
+gtf: "resources/annotation.combined_human_yeast.rnaseq_filtered_eif3d_markusfilter.gtf"
 platform: "Illumina"
 
 
@@ -25,8 +27,13 @@ yeast_contaminants: "resources/contaminants.yeast.bed"
 # Parameters for RiboseQC, ORFquant, and RiboStan
 # Human
 human_genome: "resources/GRCh38.primary_assembly.genome.fa"
-human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.fa"
-human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.gtf"
+# human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.fa"
+# human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eif3d.fa"
+human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eif3d_markusfilter.fa"
+# human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.gtf"
+# human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eif3d.gtf"
+human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eif3d_markusfilter.gtf"
+
 
 # Yeast
 yeast_genome: "resources/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa"
@@ -35,4 +42,6 @@ yeast_gtf: "resources/Saccharomyces_cerevisiae.R64-1-1.109.gtf"
 
 
 # Parameters for Salmon (for total RNA quantification)
-transcriptome: "resources/transcriptome.combined_human_yeast.fa"
+# transcriptome: "resources/transcriptome.combined_human_yeast.fa"
+# transcriptome: "resources/transcriptome.combined_human_yeast.rnaseq_filtered_eif3d.fa"
+transcriptome: "resources/transcriptome.combined_human_yeast.rnaseq_filtered_eif3d_markusfilter.fa"

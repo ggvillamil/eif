@@ -13,15 +13,15 @@ library(tidyverse)
 
 
 my_assay <- "ribo" # You should replace "total" with "rnaseq" in everything
-my_condition <- "conditionTime"
+my_condition <- "conditionAuxin"
 my_organism <- "human"
 my_orf <- "morf"
 my_subunit <- "eIF3d"
-my_auxin <- "plusAux"
+# my_auxin <- "plusAux"
 my_harringtonine <- "minusHarr"
-# my_time <- "4h"
+my_time <- "4h"
 
-my_suffix <- paste(my_assay, my_condition, my_organism, my_orf, my_subunit, my_auxin, my_harringtonine, sep = "_")
+my_suffix <- paste(my_assay, my_condition, my_organism, my_orf, my_subunit, my_harringtonine, my_time, sep = "_")
 
 
 # Functions ---------------------------------------------------------------
@@ -71,9 +71,10 @@ sampleTable <- data.frame(samples) %>%
 sampleTable <- sampleTable %>% filter(
   assay == my_assay &
   subunit == my_subunit &
-  auxin == my_auxin &
+  # auxin == my_auxin &
+  time == my_time &
   harringtonine == my_harringtonine)
-  # time == my_time)
+
 
 ribo_samples <- sampleTable %>% filter(assay == "ribo") %>% .$sampleName
 rna_samples <- sampleTable %>% filter(assay == "total") %>% .$sampleName
@@ -94,6 +95,7 @@ names(rna_files) <- rna_samples
 # Combine Ribostan and Salmon file paths
 # quantfiles <- c(ribo_files, rna_files)
 quantfiles <- ribo_files
+# quantfiles <- rna_files
 
 # Import abundances with tximport()
 txi <- tximport(quantfiles, type = "salmon", txOut = TRUE, importer = read_quantfile)

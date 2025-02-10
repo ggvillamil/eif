@@ -12,11 +12,11 @@ library(tidyverse)
 # Select samples to include in analysis -----------------------------------
 
 
-my_assay <- "ribo" # You should replace "total" with "rnaseq" in everything
+my_assay <- "total" # You should replace "total" with "rnaseq" in everything
 my_condition <- "conditionAuxin" # Choose one: "conditionAuxin" or "conditionTime"
 my_organism <- "human"
 my_orf <- "morf"
-my_subunit <- "eIF4G2"
+my_subunit <- "eIF3d"
 # my_auxin <- "plusAux" # Comment out if "conditionAuxin" is used
 my_harringtonine <- "minusHarr"
 my_time <- "4h" # Comment out if "conditionTime" is used
