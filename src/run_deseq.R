@@ -12,11 +12,11 @@ library(tidyverse)
 # Select samples to include in analysis -----------------------------------
 
 
-my_assay <- "total" # You should replace "total" with "rnaseq" in everything
+my_assay <- "ribo" # You should replace "total" with "rnaseq" in everything
 my_condition <- "conditionAuxin" # Choose one: "conditionAuxin" or "conditionTime"
 my_organism <- "human"
 my_orf <- "morf"
-my_subunit <- "eIF3d"
+my_subunit <- "eIF4G1"
 # my_auxin <- "plusAux" # Comment out if "conditionAuxin" is used
 my_harringtonine <- "minusHarr"
 my_time <- "4h" # Comment out if "conditionTime" is used
@@ -109,32 +109,32 @@ resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrun
 # Trying to use ribo-seq spike-ins for RNA-seq libraries ------------------
 
 
-if(my_assay == "total"){
-my_sizeFactors <- readRDS("results/post/sizeFactors_yeast.rds")
-my_sizeFactors[82:162] <- my_sizeFactors[1:81]
+# if(my_assay == "total"){
+# my_sizeFactors <- readRDS("results/post/sizeFactors_yeast.rds")
+# my_sizeFactors[82:162] <- my_sizeFactors[1:81]
 
-total_samples <- sampleTable %>% filter(assay == "total") %>% .$sampleName
-my_sizeFactors <- my_sizeFactors[total_samples]
+# total_samples <- sampleTable %>% filter(assay == "total") %>% .$sampleName
+# my_sizeFactors <- my_sizeFactors[total_samples]
 
-# Manually set size factors
-dds_manual <- dds
-sizeFactors(dds_manual) <- my_sizeFactors
+# # Manually set size factors
+# dds_manual <- dds
+# sizeFactors(dds_manual) <- my_sizeFactors
 
-# Run DESeq2
-dds_manual <- DESeq(dds_manual)
-res_manual <- results(dds_manual)
+# # Run DESeq2
+# dds_manual <- DESeq(dds_manual)
+# res_manual <- results(dds_manual)
 
-# Save results
-saveRDS(res_manual, paste0("results/post/deseq_res_diff", my_assay, "_yeastnorm_", my_suffix, ".rds"))
+# # Save results
+# saveRDS(res_manual, paste0("results/post/deseq_res_diff", my_assay, "_yeastnorm_", my_suffix, ".rds"))
 
-# Bayesian shrinkage with apeglm
-resLFC_manual <- lfcShrink(dds_manual, coef = "auxin_plusAux_vs_minusAux", type = "apeglm") # Comment out if "conditionTime" is used
-# resLFC_manual <- lfcShrink(dds_manual, coef = "time_8h_vs_4h", type = "apeglm") # Comment out if "conditionAuxin" is used
+# # Bayesian shrinkage with apeglm
+# resLFC_manual <- lfcShrink(dds_manual, coef = "auxin_plusAux_vs_minusAux", type = "apeglm") # Comment out if "conditionTime" is used
+# # resLFC_manual <- lfcShrink(dds_manual, coef = "time_8h_vs_4h", type = "apeglm") # Comment out if "conditionAuxin" is used
 
-# MA plots
-res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_diff", my_assay, "_yeastnorm_", my_suffix, ".pdf"))
-resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_diff", my_assay, "_yeastnorm_", my_suffix, ".pdf"))
-}
+# # MA plots
+# res_manual %>% plotMAplot(., ylim = c(-8, 8), filename = paste0("MAplot_diff", my_assay, "_yeastnorm_", my_suffix, ".pdf"))
+# resLFC_manual %>% plotMAplot(., ylim = c(-4, 4), filename = paste0("MAplot_shrunk_diff", my_assay, "_yeastnorm_", my_suffix, ".pdf"))
+# }
 
 
 # Take size factors automatically estimated by DESeq2 ---------------------

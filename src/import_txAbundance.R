@@ -12,7 +12,7 @@ library(tidyverse)
 # Select samples to include in analysis -----------------------------------
 
 
-my_assay <- "ribo" # You should replace "total" with "rnaseq" in everything
+my_assay <- "total" # You should replace "total" with "rnaseq" in everything
 my_condition <- "conditionAuxin"
 my_organism <- "human"
 my_orf <- "morf"
@@ -22,6 +22,7 @@ my_harringtonine <- "minusHarr"
 my_time <- "4h"
 
 my_suffix <- paste(my_assay, my_condition, my_organism, my_orf, my_subunit, my_harringtonine, my_time, sep = "_")
+# my_suffix <- paste(my_condition, my_organism, my_orf, my_subunit, my_harringtonine, my_time, sep = "_")
 
 
 # Functions ---------------------------------------------------------------
@@ -54,9 +55,9 @@ sampleCols <- c("assay", "sample_id", "subunit", "auxin", "harringtonine", "time
 
 
 # Retrieve all sample names from sample config files
-ribo_samples <- scan("config/ribo_samples.csv", skip = 1, what = "character")
+ribo_samples <- scan("config/ribo_samples_all.csv", skip = 1, what = "character")
 ribo_samples <- str_sub(ribo_samples, 1, -4) # You should remove the read number (i.e. _R1) from ribo-seq sample names but this will do for now
-rna_samples <- scan("config/total_samples.csv", skip = 1, what = "character")
+rna_samples <- scan("config/total_samples_all.csv", skip = 1, what = "character")
 samples <- c(ribo_samples, rna_samples)
 
 # Parse column information from sample names
@@ -94,8 +95,8 @@ names(rna_files) <- rna_samples
 
 # Combine Ribostan and Salmon file paths
 # quantfiles <- c(ribo_files, rna_files)
-quantfiles <- ribo_files
-# quantfiles <- rna_files
+# quantfiles <- ribo_files
+quantfiles <- rna_files
 
 # Import abundances with tximport()
 txi <- tximport(quantfiles, type = "salmon", txOut = TRUE, importer = read_quantfile)

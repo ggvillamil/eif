@@ -6,8 +6,9 @@ library(tidyverse)
 # Functions ---------------------------------------------------------------
 
 
-plotVolcano <- function(INPUT, subtitle, filename, xlim, ylim){
-  plotfile <- paste0("plots/", filename) %T>% pdf(h=8, w=14)
+# plotVolcano <- function(INPUT, subtitle, filename, xlim, ylim){
+plotVolcano <- function(INPUT, subtitle, filename){
+  plotfile <- paste0("plots/", filename) %T>% pdf(h=6, w=6)
 
   # ggplot
   rwplot <- INPUT %>%
@@ -18,8 +19,8 @@ plotVolcano <- function(INPUT, subtitle, filename, xlim, ylim){
          subtitle = subtitle) +
     ylab("-Log10 (adjusted p-value)") +
     xlab("TE log2FoldChange") +
-    xlim(xlim) +
-    ylim(ylim) +
+    # xlim(xlim) +
+    # ylim(ylim) +
     theme_bw()
 
   print(rwplot)
@@ -52,7 +53,8 @@ for(res_file in res_files){
     mutate(diffTranslated = ifelse(log2FoldChange > 0.5 & padj < 0.05, "Up",
       ifelse(log2FoldChange < -0.5 & padj < 0.05, "Down", "No")))
 
-  res %>% plotVolcano(., subtitle = subtitle, filename = filename, xlim = c(-15, 15), ylim = c(-1, 30))
+  # res %>% plotVolcano(., subtitle = subtitle, filename = filename, xlim = c(-15, 15), ylim = c(-1, 30))
+  res %>% plotVolcano(., subtitle = subtitle, filename = filename)
 }
 
 
