@@ -27,6 +27,9 @@ read_quantfile <- function(filepath){
 # Retrieve all sample names from sample config files
 rna_samples <- scan("config/total_samples.csv", skip = 1, what = "character")
 
+rna_samples <- rna_samples[25:30]
+
+
 # File paths to Salmon results
 rna_files <- paste0("results/salmon/data/", rna_samples, "/quant.sf")
 names(rna_files) <- rna_samples
@@ -68,6 +71,6 @@ filtered_txid <- filtered_tpm$transcript_id
 
 remove_txid <- setdiff(human_txid, filtered_txid)
 # write.table(remove_txid, file = "results/post/table_rnaseq_filter_remove_txid_eIF3d_uwefilter.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
-write.table(remove_txid, file = "results/post/table_rnaseq_filter_remove_txid_eIF3d_markusfilter.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(remove_txid, file = "results/post/table_rnaseq_filter_remove_txid_eIF4G3_4h.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 

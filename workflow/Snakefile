@@ -38,7 +38,8 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
+        expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
+        expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
 
 
 # I. Pre-process reads (trim and collapse) --------------------------------
@@ -721,22 +722,22 @@ rule ribostan_human_uorfs:
 # IX. Run Salmon ----------------------------------------------------------
 
 
-# rule salmon_bam:
-#     input:
-#         bam="results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam",
-#         # fasta=config["transcriptome_initial"]
-#     output:
-#         "results/salmon/data/{total_sample}/quant.sf"
-#     threads: 4
-#     params:
-#         lib="A"
-#     shell: r"""
-#         salmon quant \
-#         -p {threads} \
-#         --seqBias \
-#         -t {input.fasta} \
-#         -l {params.lib} \
-#         -a {input.bam} \
-#         --output results/salmon/data/{wildcards.total_sample}
-#     """
+rule salmon_bam:
+    input:
+        bam="results/star/transcriptome_rnaseq/data/{total_sample}/{total_sample}.bam",
+        fasta=config["transcriptome"]
+    output:
+        "results/salmon/data/{total_sample}/quant.sf"
+    threads: 4
+    params:
+        lib="A"
+    shell: r"""
+        salmon quant \
+        -p {threads} \
+        --seqBias \
+        -t {input.fasta} \
+        -l {params.lib} \
+        -a {input.bam} \
+        --output results/salmon/data/{wildcards.total_sample}
+    """
 

@@ -1,14 +1,14 @@
 #! /bin/bash
 
-#SBATCH --job-name=quantify_primary_riboseq_eif3d_markusfilter
+#SBATCH --job-name=quantify_ribo_eif4g3
 #SBATCH --mail-user=gabriel.villamil@mdc-berlin.de
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --output=logs/snakemake/%j.snakemake.stdout.log
 #SBATCH --export=ALL
 #SBATCH --chdir=.
 #SBATCH --ntasks=48
-#SBATCH --time=168:00:00
-#SBATCH --mem-per-cpu=30000MB
+#SBATCH --time=24:00:00
+#SBATCH --mem-per-cpu=50000MB
 
 
 # Source .bashrc file
