@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# I need to replace headers on split_bam files (right now they contain both human and yeast transcript headers)
+# A general transcript bam header won't worn because @PG headers are specific to the sample
+
+# Lines 23118 through 29729 are yeast transcripts and should be removed
+# samtools view -H bam_file | sed -e '23118,29729d' | samtools reheader - bam_file > reheadered.bam
+
+# for sample in ribo_01_eIF3d_minusAux_minusHarr_4h_rep1_R1 ribo_02_eIF3d_minusAux_minusHarr_4h_rep2_R1 ribo_03_eIF3d_minusAux_minusHarr_4h_rep3_R1 ribo_04_eIF3d_plusAux_minusHarr_4h_rep1_R1 ribo_05_eIF3d_plusAux_minusHarr_4h_rep2_R1 ribo_06_eIF3d_plusAux_minusHarr_4h_rep3_R1 ribo_07_eIF4E_minusAux_minusHarr_4h_rep1_R1 ribo_08_eIF4E_minusAux_minusHarr_4h_rep2_R1 ribo_09_eIF4E_minusAux_minusHarr_4h_rep3_R1 ribo_10_eIF4E_plusAux_minusHarr_4h_rep1_R1 ribo_11_eIF4E_plusAux_minusHarr_4h_rep2_R1 ribo_12_eIF4E_plusAux_minusHarr_4h_rep3_R1 ribo_13_eIF4G1_minusAux_minusHarr_4h_rep1_R1 ribo_14_eIF4G1_minusAux_minusHarr_4h_rep2_R1 ribo_15_eIF4G1_minusAux_minusHarr_4h_rep3_R1 ribo_16_eIF4G1_plusAux_minusHarr_4h_rep1_R1 ribo_17_eIF4G1_plusAux_minusHarr_4h_rep2_R1 ribo_18_eIF4G1_plusAux_minusHarr_4h_rep3_R1 ribo_19_eIF4G2_minusAux_minusHarr_4h_rep1_R1 ribo_20_eIF4G2_minusAux_minusHarr_4h_rep2_R1 ribo_21_eIF4G2_minusAux_minusHarr_4h_rep3_R1 ribo_22_eIF4G2_plusAux_minusHarr_4h_rep1_R1 ribo_23_eIF4G2_plusAux_minusHarr_4h_rep2_R1 ribo_24_eIF4G2_plusAux_minusHarr_4h_rep3_R1 ribo_25_eIF4G3_minusAux_minusHarr_4h_rep1_R1 ribo_26_eIF4G3_minusAux_minusHarr_4h_rep2_R1 ribo_27_eIF4G3_minusAux_minusHarr_4h_rep3_R1 ribo_28_eIF4G3_plusAux_minusHarr_4h_rep1_R1 ribo_29_eIF4G3_plusAux_minusHarr_4h_rep2_R1 ribo_30_eIF4G3_plusAux_minusHarr_4h_rep3_R1
+# do
+# 	samtools view -H results/split_bam/transcriptome/human/${sample}.bam | sed -e '23118,29729d' | samtools reheader - results/split_bam/transcriptome/human/${sample}.bam > results/split_bam/transcriptome/human/reheadered/${sample}.reheadered.bam
+# done
+
+
+# ----------
+
+
+# Prepare reference sequences
+# rsem-prepare-reference --gtf resources/HCT116_Txome_WT.v1.0.sort.gtf --star resources/GRCh38.primary_assembly.genome.fa results/rsem/HCT116_Txome_WT.v1.0.sort
+
+
+# ----------
+
+
+for sample in ribo_01_eIF3d_minusAux_minusHarr_4h_rep1_R1 ribo_02_eIF3d_minusAux_minusHarr_4h_rep2_R1 ribo_03_eIF3d_minusAux_minusHarr_4h_rep3_R1 ribo_04_eIF3d_plusAux_minusHarr_4h_rep1_R1 ribo_05_eIF3d_plusAux_minusHarr_4h_rep2_R1 ribo_06_eIF3d_plusAux_minusHarr_4h_rep3_R1 ribo_07_eIF4E_minusAux_minusHarr_4h_rep1_R1 ribo_08_eIF4E_minusAux_minusHarr_4h_rep2_R1 ribo_09_eIF4E_minusAux_minusHarr_4h_rep3_R1 ribo_10_eIF4E_plusAux_minusHarr_4h_rep1_R1 ribo_11_eIF4E_plusAux_minusHarr_4h_rep2_R1 ribo_12_eIF4E_plusAux_minusHarr_4h_rep3_R1 ribo_13_eIF4G1_minusAux_minusHarr_4h_rep1_R1 ribo_14_eIF4G1_minusAux_minusHarr_4h_rep2_R1 ribo_15_eIF4G1_minusAux_minusHarr_4h_rep3_R1 ribo_16_eIF4G1_plusAux_minusHarr_4h_rep1_R1 ribo_17_eIF4G1_plusAux_minusHarr_4h_rep2_R1 ribo_18_eIF4G1_plusAux_minusHarr_4h_rep3_R1 ribo_19_eIF4G2_minusAux_minusHarr_4h_rep1_R1 ribo_20_eIF4G2_minusAux_minusHarr_4h_rep2_R1 ribo_21_eIF4G2_minusAux_minusHarr_4h_rep3_R1 ribo_22_eIF4G2_plusAux_minusHarr_4h_rep1_R1 ribo_23_eIF4G2_plusAux_minusHarr_4h_rep2_R1 ribo_24_eIF4G2_plusAux_minusHarr_4h_rep3_R1 ribo_25_eIF4G3_minusAux_minusHarr_4h_rep1_R1 ribo_26_eIF4G3_minusAux_minusHarr_4h_rep2_R1 ribo_27_eIF4G3_minusAux_minusHarr_4h_rep3_R1 ribo_28_eIF4G3_plusAux_minusHarr_4h_rep1_R1 ribo_29_eIF4G3_plusAux_minusHarr_4h_rep2_R1 ribo_30_eIF4G3_plusAux_minusHarr_4h_rep3_R1
+do
+	# Convert transcript bam to genome bam
+	# rsem-tbam2gbam reference_name unsorted_transcript_bam_input genome_bam_output
+	rsem-tbam2gbam results/rsem/HCT116_Txome_WT.v1.0.sort results/split_bam/transcriptome/human/reheadered/${sample}.reheadered.bam results/genome_converted/${sample}.bam
+
+	# Sort resulting bam file
+	samtools sort results/genome_converted/${sample}.bam > results/genome_converted/${sample}.sort.bam
+
+	# Index resulting bam file
+	samtools index results/genome_converted/${sample}.sort.bam
+done
