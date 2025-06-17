@@ -38,7 +38,7 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 rule all:
     input:
-        expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples),
+        # expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
         expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
 
 
@@ -461,7 +461,7 @@ rule star_transcript:
         transcriptindex="results/star_index/transcriptome"
     output:
         "results/star/transcriptome/data/{sample}/{sample}.bam"
-    threads: 8
+    threads: 12
     params:
     shell: r"""
         tmpDir=$(mktemp -d)
@@ -589,6 +589,7 @@ rule ribostan_human_morfs:
         gtf = config["human_gtf"]
     output:
         quant = "results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.rds",
+        psites = "results/ribostan/{sample}/{sample}.ribostan.human_morf_psites.rds",
         tsv = "results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv"
     shell: r"""
         R -e 'library(Ribostan);
@@ -613,6 +614,7 @@ rule ribostan_human_morfs:
             dplyr::left_join(ritpmdf) %>%
             dplyr::left_join(counts);
         saveRDS(ritpms, file = "{output.quant}");
+        saveRDS(psites, file = "{output.psites}");
         output %>% readr::write_tsv("{output.tsv}")'
         """
 
