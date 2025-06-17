@@ -12,7 +12,7 @@ qualcutoff: "20"
 contaminants: "resources/contaminants.combined_human_yeast.fa"
 genome: "resources/genome.combined_human_yeast.fa"
 # gtf: "resources/annotation.combined_human_yeast.gtf"
-gtf: "resources/annotation.combined_human_yeast.rnaseq_filtered_eIF4G3_4h.gtf"
+gtf: "resources/annotation.combined_human_yeast.rnaseq_filtered_eIF3d001_4h.gtf"
 platform: "Illumina"
 
 
@@ -27,9 +27,9 @@ yeast_contaminants: "resources/contaminants.yeast.bed"
 # Human
 human_genome: "resources/GRCh38.primary_assembly.genome.fa"
 # human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.fa"
-human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eIF4G3_4h.fa"
+human_transcriptome: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eIF3d001_4h.fa"
 # human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.gtf"
-human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eIF4G3_4h.gtf"
+human_gtf: "resources/HCT116_Txome_WT.v1.0.sort.rnaseq_filtered_eIF3d001_4h.gtf"
 
 
 # Yeast
@@ -40,4 +40,4 @@ yeast_gtf: "resources/Saccharomyces_cerevisiae.R64-1-1.109.gtf"
 
 # Parameters for Salmon (for total RNA quantification)
 # transcriptome: "resources/transcriptome.combined_human_yeast.fa"
-transcriptome: "resources/transcriptome.combined_human_yeast.rnaseq_filtered_eIF4G3_4h.fa"
+transcriptome: "resources/transcriptome.combined_human_yeast.rnaseq_filtered_eIF3d001_4h.fa"

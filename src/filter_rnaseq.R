@@ -27,7 +27,7 @@ read_quantfile <- function(filepath){
 # Retrieve all sample names from sample config files
 rna_samples <- scan("config/total_samples.csv", skip = 1, what = "character")
 
-rna_samples <- rna_samples[25:30]
+rna_samples <- rna_samples[1:6]
 
 
 # File paths to Salmon results
@@ -64,13 +64,13 @@ tpm <- txi$abundance %>% as_tibble(rownames = "transcript_id")
 # Remove yeast transcripts along the way
 filtered_tpm <- tpm %>%
   filter(transcript_id %in% human_txid) %>%
-  filter(rowSums(select(., -transcript_id) >= 1) >= 2)
+  filter(rowSums(select(., -transcript_id) >= 0.01) >= 2)
 
 
 filtered_txid <- filtered_tpm$transcript_id
 
 remove_txid <- setdiff(human_txid, filtered_txid)
 # write.table(remove_txid, file = "results/post/table_rnaseq_filter_remove_txid_eIF3d_uwefilter.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
-write.table(remove_txid, file = "results/post/table_rnaseq_filter_remove_txid_eIF4G3_4h.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(remove_txid, file = "results/post/table_rnaseq_filter_remove_txid_eIF3d001_4h.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 
