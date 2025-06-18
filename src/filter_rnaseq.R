@@ -31,9 +31,6 @@ rna_samples <- scan("config/total_samples.csv", skip = 1, what = "character")
 
 # Find way to select per subunit and treatment
 
-# TEMP: Limit to a subset of samples (first 6)
-# rna_samples <- rna_samples[1:6]
-
 # Generate file paths to Salmon output
 rna_files <- paste0("results/salmon/data/", rna_samples, "/quant.sf")
 names(rna_files) <- rna_samples
@@ -59,16 +56,6 @@ tpm <- txi$abundance %>%
 
 # Filter transcripts ------------------------------------------------------
 
-# --- Filter Option 1: "Uwe Filter" ---
-# Keep transcripts with TPM >= 1 in at least 1 sample in both conditions
-# filtered_tpm <- tpm %>%
-#   filter(transcript_id %in% human_txid) %>%
-#   filter(
-#     rowSums(select(., contains("minusAux")) >= 1) >= 1 &
-#     rowSums(select(., contains("plusAux")) >= 1) >= 1
-#   )
-
-# --- Filter Option 2: "Markus Filter" (Active) ---
 # Keep transcripts with TPM >= 0.01 in at least 2 samples (any condition)
 filtered_tpm <- tpm %>%
   filter(transcript_id %in% human_txid) %>%
