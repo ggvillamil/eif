@@ -8,6 +8,7 @@ container: "docker://ggvillamil/ribopipe2"
 
 # Load libraries
 import pandas as pd
+import re
 
 ## Workflow configuration
 configfile: "config/config.yaml"
@@ -31,6 +32,29 @@ human_gtf_base = config["human_gtf"].replace(".gtf","").replace("resources/","")
 
 # Base name of combined gtf annotation for RiboStan
 gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
+
+
+# Additional code for transcript filtering ---------------------------------------------------
+
+
+# Load and parse total RNA-seq sample metadata from sample names
+def parse_metadata(sample_name):
+    pattern = re.compile(r"total_\d+_(\w+)_(plusAux|minusAux)_(minusHarr)_(\dh)_rep\d")
+    match = pattern.match(sample_name)
+    if not match:
+        raise ValueError(f"Sample name format incorrect: {sample_name}")
+    subunit, auxin, harr, time = match.groups()
+    return pd.Series({"sample_name": sample_name, "subunit": subunit, "auxin": auxin, "harr": harr, "time": time})
+
+samples_meta = total_samplesdf.index.to_series().apply(parse_metadata)
+samples_meta_df = pd.concat([total_samplesdf, samples_meta], axis=1)
+
+# Group samples by (subunit, auxin, harr, time)
+grouped_samples = samples_meta_df.groupby(["subunit", "auxin", "harr", "time"])['sample_name'].apply(list).to_dict()
+
+# Output filename builder
+def filter_output_filename(subunit, auxin, harr, time):
+    return f"results/post/remove_txid_{subunit}_{auxin}_{harr}_{time}.txt"
 
 
 # One rule to rule them all -----------------------------------------------
@@ -742,4 +766,25 @@ rule salmon_bam:
         -a {input.bam} \
         --output results/salmon/data/{wildcards.total_sample}
     """
+
+
+# XI. Filter transcripts based on RNA-seq ----------------------------------------------------------
+
+
+# Rule to generate filtered transcript list from quant.sf files
+rule transcript_filtering:
+    input:
+        lambda wildcards: expand(
+            "results/salmon/data/{sample}/quant.sf",
+            sample=grouped_samples[(wildcards.subunit, wildcards.auxin, wildcards.harr, wildcards.time)]
+        )
+    output:
+        lambda wildcards: filter_output_filename(wildcards.subunit, wildcards.auxin, wildcards.harr, wildcards.time)
+    params:
+        script="scripts/filter_transcripts.R"
+    shell:
+        """
+        Rscript {params.script} --samples {input} --output {output}
+        """
+
 
