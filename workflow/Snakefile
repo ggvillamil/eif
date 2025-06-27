@@ -37,7 +37,8 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 # Additional code for transcript filtering ---------------------------------------------------
 
 
-# Load and parse total RNA-seq sample metadata from sample names
+# Parse RNA-seq sample metadata from sample names and group them by condition
+# Define a function to extract metadata from a standardized sample name
 def parse_metadata(sample_name):
     pattern = re.compile(r"total_\d+_(\w+)_(plusAux|minusAux)_(minusHarr)_(\dh)_rep\d")
     match = pattern.match(sample_name)
@@ -46,15 +47,22 @@ def parse_metadata(sample_name):
     subunit, auxin, harr, time = match.groups()
     return pd.Series({"sample_name": sample_name, "subunit": subunit, "auxin": auxin, "harr": harr, "time": time})
 
+# Apply the parsing function to the sample names in the sample sheet index
 samples_meta = total_samplesdf.index.to_series().apply(parse_metadata)
+
+# Drop the redundant 'sample_name' column (already present in total_samplesdf)
+samples_meta = samples_meta.drop(columns=["sample_name"])
+
+# Combine the original sample metadata with the parsed fields
 samples_meta_df = pd.concat([total_samplesdf, samples_meta], axis=1)
 
-# Group samples by (subunit, auxin, harr, time)
-grouped_samples = samples_meta_df.groupby(["subunit", "auxin", "harr", "time"])['sample_name'].apply(list).to_dict()
+# Group the sample names by unique condition: (subunit, harr, time)
+# This merges plusAux and minusAux replicates under one analysis group
+grouped_samples = samples_meta_df.groupby(["subunit", "harr", "time"])['sample_name'].apply(list).to_dict()
 
-# Output filename builder
-def filter_output_filename(subunit, auxin, harr, time):
-    return f"results/post/remove_txid_{subunit}_{auxin}_{harr}_{time}.txt"
+# Define a function to build the expected output file name for each group
+def filter_output_filename(subunit, harr, time):
+    return f"results/post/remove_txid_{subunit}_{harr}_{time}.txt"
 
 
 # One rule to rule them all -----------------------------------------------
@@ -63,7 +71,13 @@ def filter_output_filename(subunit, auxin, harr, time):
 rule all:
     input:
         # expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
-        expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
+        # expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
+        expand(
+            "results/post/remove_txid_{subunit}_{harr}_{time}.txt",
+            subunit=samples_meta_df["subunit"].unique(),
+            harr=samples_meta_df["harr"].unique(),
+            time=samples_meta_df["time"].unique(),
+        )
 
 
 # I. Pre-process reads (trim and collapse) --------------------------------
@@ -771,20 +785,17 @@ rule salmon_bam:
 # XI. Filter transcripts based on RNA-seq ----------------------------------------------------------
 
 
-# Rule to generate filtered transcript list from quant.sf files
 rule transcript_filtering:
     input:
         lambda wildcards: expand(
             "results/salmon/data/{sample}/quant.sf",
-            sample=grouped_samples[(wildcards.subunit, wildcards.auxin, wildcards.harr, wildcards.time)]
+            sample=grouped_samples[(wildcards.subunit, wildcards.harr, wildcards.time)]
         )
     output:
-        lambda wildcards: filter_output_filename(wildcards.subunit, wildcards.auxin, wildcards.harr, wildcards.time)
+        "results/post/remove_txid_{subunit}_{harr}_{time}.txt"
     params:
-        script="scripts/filter_transcripts.R"
+        script="src/filter_transcripts.R"
     shell:
         """
-        Rscript {params.script} --samples {input} --output {output}
+        Rscript {params.script} "{input}" {output}
         """
-
-

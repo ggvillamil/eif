@@ -1,19 +1,19 @@
-# --- filter_transcripts.R (revised to accept args) ---
-
 # Load libraries ----------------------------------------------------------
 library(tximport)
 library(tidyverse)
-library(optparse)
 
-# Argument parser ---------------------------------------------------------
-option_list <- list(
-  make_option("--samples", type="character", help="Space-separated list of quant.sf files", metavar="files"),
-  make_option("--output", type="character", help="Output file path for transcript IDs to remove")
-)
+# Parse command-line arguments manually ----------------------------------
+args <- commandArgs(trailingOnly = TRUE)
 
-opt <- parse_args(OptionParser(option_list=option_list))
+# Check if we have exactly 2 arguments
+if (length(args) != 2) {
+  stop("Usage: Rscript filter_transcripts.R <samples> <output>")
+}
 
-sample_files <- strsplit(opt$samples, " ")[[1]]
+sample_arg <- args[1]
+output_path <- args[2]
+
+sample_files <- strsplit(sample_arg, " ")[[1]]
 names(sample_files) <- basename(dirname(sample_files))
 
 # Helper function ---------------------------------------------------------
@@ -51,7 +51,7 @@ remove_txid <- setdiff(human_txid, filtered_tpm$transcript_id)
 # Write results -----------------------------------------------------------
 write.table(
   remove_txid,
-  file = opt$output,
+  file = output_path,
   quote = FALSE,
   row.names = FALSE,
   col.names = FALSE
