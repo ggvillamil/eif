@@ -1,5 +1,4 @@
 # Load libraries ----------------------------------------------------------
-.libPaths(c("/tmp/Rlibs", .libPaths()))
 
 library(tximport)
 library(tidyverse)

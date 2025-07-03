@@ -3,7 +3,7 @@
 
 ## Run workflow in Docker container
 ## (Note: you must run snakemake command with --use-singularity flag)
-container: "docker://ggvillamil/ribopipe2"
+container: "docker://ggvillamil/eif"
 
 
 # Load libraries
@@ -797,14 +797,5 @@ rule transcript_filtering:
         script="src/filter_transcripts.R"
     shell:
         """
-        {{
-        set -euo pipefail
-        mkdir -p /tmp/Rlibs
-        Rscript -e '
-          .libPaths(c("/tmp/Rlibs", .libPaths()));
-          if (!requireNamespace("tidyverse", quietly=TRUE)) install.packages("tidyverse", lib="/tmp/Rlibs", repos="https://cloud.r-project.org");
-          if (!requireNamespace("tximport", quietly=TRUE)) BiocManager::install("tximport", lib="/tmp/Rlibs", ask=FALSE);
-        '
         Rscript {params.script} "{input}" {output}
-        }} > results/logs/{wildcards.subunit}_{wildcards.harr}_{wildcards.time}.log 2>&1
         """
