@@ -38,7 +38,7 @@ gtf_base = config["gtf"].replace(".gtf","").replace("resources/","")
 
 
 # Parse RNA-seq sample metadata from sample names and group them by condition
-# Define a function to extract metadata from a standardized sample name
+# Function to extract metadata from a standardized sample name
 def parse_metadata(sample_name):
     pattern = re.compile(r"total_\d+_(\w+)_(plusAux|minusAux)_(minusHarr)_(\dh)_rep\d")
     match = pattern.match(sample_name)
@@ -60,7 +60,7 @@ samples_meta_df = pd.concat([total_samplesdf, samples_meta], axis=1)
 # This merges plusAux and minusAux replicates under one analysis group
 grouped_samples = samples_meta_df.groupby(["subunit", "harr", "time"])['sample_name'].apply(list).to_dict()
 
-# Define a function to build the expected output file name for each group
+# Function to build the expected output file name for each group
 def filter_output_filename(subunit, harr, time):
     return f"results/post/remove_txid_{subunit}_{harr}_{time}.txt"
 
@@ -797,5 +797,14 @@ rule transcript_filtering:
         script="src/filter_transcripts.R"
     shell:
         """
+        {{
+        set -euo pipefail
+        mkdir -p /tmp/Rlibs
+        Rscript -e '
+          .libPaths(c("/tmp/Rlibs", .libPaths()));
+          if (!requireNamespace("tidyverse", quietly=TRUE)) install.packages("tidyverse", lib="/tmp/Rlibs", repos="https://cloud.r-project.org");
+          if (!requireNamespace("tximport", quietly=TRUE)) BiocManager::install("tximport", lib="/tmp/Rlibs", ask=FALSE);
+        '
         Rscript {params.script} "{input}" {output}
+        }} > results/logs/{wildcards.subunit}_{wildcards.harr}_{wildcards.time}.log 2>&1
         """
