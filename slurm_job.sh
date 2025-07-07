@@ -6,9 +6,9 @@
 #SBATCH --output=logs/snakemake/%j.snakemake.stdout.log
 #SBATCH --export=ALL
 #SBATCH --chdir=.
-#SBATCH --ntasks=1
+#SBATCH --ntasks=48
 #SBATCH --time=48:00:00
-#SBATCH --mem-per-cpu=20000MB
+#SBATCH --mem-per-cpu=50000MB
 
 
 # Source .bashrc file
@@ -18,7 +18,7 @@ source ~/.bashrc
 conda activate z_snakemake
 
 # Run Snakemake
-snakemake -j 1 -k -p --restart-times 1 --max-jobs-per-second 5 --rerun-incomplete --use-singularity
+snakemake -j 48 -k -p --restart-times 1 --max-jobs-per-second 5 --rerun-incomplete --use-singularity
 
 # Call another bash script
 # conda activate ribopipe

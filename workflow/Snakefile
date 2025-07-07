@@ -73,7 +73,7 @@ rule all:
         # expand("results/ribostan/{sample}/{sample}.ribostan.human_morf_quant.tsv", sample = ribo_samples)
         # expand("results/salmon/data/{total_sample}/quant.sf", total_sample = total_samples)
         expand(
-            "results/post/remove_txid_{subunit}_{harr}_{time}.txt",
+            "resources/{subunit}_{harr}_{time}.combined.gtf",
             subunit=samples_meta_df["subunit"].unique(),
             harr=samples_meta_df["harr"].unique(),
             time=samples_meta_df["time"].unique(),
@@ -793,9 +793,37 @@ rule transcript_filtering:
         )
     output:
         "results/post/remove_txid_{subunit}_{harr}_{time}.txt"
-    params:
-        script="src/filter_transcripts.R"
     shell:
         """
-        Rscript {params.script} "{input}" {output}
+        Rscript src/filter_transcripts.R "{input}" {output}
         """
+
+
+# Generate per‑condition filtered GTF+FA
+rule make_filtered_resources:
+    input:
+        remove_tx = "results/post/remove_txid_{subunit}_{harr}_{time}.txt",
+        human_gtf  = config["human_gtf"],
+        human_fa   = config["human_transcriptome"],
+        yeast_gtf  = config["yeast_gtf"],
+        yeast_fa   = config["yeast_transcriptome"]
+    output:
+        gtf_filtered  = "resources/{subunit}_{harr}_{time}.human.filtered.gtf",
+        fa_filtered   = "resources/{subunit}_{harr}_{time}.human.filtered.fa",
+        gtf_combined  = "resources/{subunit}_{harr}_{time}.combined.gtf",
+        fa_combined   = "resources/{subunit}_{harr}_{time}.combined.fa"
+    params:
+        prefix = "resources/{subunit}_{harr}_{time}"
+    log:
+        "logs/make_filtered_resources/make_filtered_resources_{subunit}_{harr}_{time}.log"
+    shell:
+        r"""
+        bash src/make_resources.sh \
+            {input.remove_tx} \
+            {input.human_gtf} {input.human_fa} \
+            {input.yeast_gtf} {input.yeast_fa} \
+            {params.prefix} \
+          > {log} 2>&1
+        """
+
+
